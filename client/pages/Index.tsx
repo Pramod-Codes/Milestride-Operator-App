@@ -33,6 +33,7 @@ import {
 
 const bikeImage = "https://images.pexels.com/photos/34259660/pexels-photo-34259660.jpeg?auto=compress&cs=tinysrgb&w=900";
 const currentDate = new Date();
+const greetingLabel = currentDate.getHours() < 12 ? "Good morning" : currentDate.getHours() < 17 ? "Good afternoon" : currentDate.getHours() < 21 ? "Good evening" : "Good night";
 const dateLabel = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(currentDate);
 const dayLabel = new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "short", year: "numeric" }).format(currentDate).toUpperCase();
 const shortDateLabel = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" }).format(currentDate);
@@ -91,7 +92,7 @@ function BottomNav({ active, setView }: { active: View; setView: (v: View) => vo
 function HomeView({ setView }: { setView: (v: View) => void }) {
   return <>
     <main className="page home-page">
-      <section className="greeting"><div><p className="eyebrow">{dayLabel}</p><h2>Good morning, Arjun</h2><p className="muted">Here’s what needs your attention today.</p></div><div className="avatar">AK</div></section>
+      <section className="greeting"><div><p className="eyebrow">{dayLabel}</p><h2>{greetingLabel}, Arjun</h2><p className="muted">Here’s what needs your attention today.</p></div><div className="avatar">AK</div></section>
       <section><div className="section-heading"><h3>Overview</h3><span className="muted small">Today, {shortDateLabel}</span></div><div className="metrics">{metrics.map(({ value, label, tone, icon: Icon }) => <div className={`metric-card ${tone}`} key={label}><div className="metric-icon"><Icon size={15} /></div><strong>{value}</strong><span>{label}</span></div>)}</div></section>
       <section className="health-card"><div><p className="eyebrow">FLEET HEALTH</p><h3>85% <span>Healthy vehicles</span></h3><p className="positive">↑ 6% <em>vs yesterday</em></p></div><div className="health-ring"><div><b>85</b><span>%</span></div></div></section>
       <section><div className="section-heading"><h3>Quick actions</h3></div><div className="quick-actions"><button className="primary action-card" onClick={() => setView("scanner")}><QrCode size={20} /><span>Scan vehicle</span><ChevronRight size={16} /></button><button className="secondary action-card" onClick={() => setView("report")}><FileText size={20} /><span>Report issue</span><ChevronRight size={16} /></button></div></section>
