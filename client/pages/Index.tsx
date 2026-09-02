@@ -85,8 +85,8 @@ function BottomNav({ active, setView }: { active: View; setView: (v: View) => vo
 
 function HomeView({ setView }: { setView: (v: View) => void }) {
   return <>
-    <TopBar />
     <main className="page home-page">
+      <div className="home-actions"><ThemeToggle /><button className="icon-btn notification-btn"><Bell size={20} /><i /></button></div>
       <section className="greeting"><div><p className="eyebrow">THURSDAY, 24 MAY 2024</p><h2>Good morning, Arjun</h2><p className="muted">Here’s what needs your attention today.</p></div><div className="avatar">AK</div></section>
       <section><div className="section-heading"><h3>Overview</h3><span className="muted small">Today, 24 May</span></div><div className="metrics">{metrics.map(({ value, label, tone, icon: Icon }) => <div className={`metric-card ${tone}`} key={label}><div className="metric-icon"><Icon size={15} /></div><strong>{value}</strong><span>{label}</span></div>)}</div></section>
       <section className="health-card"><div><p className="eyebrow">FLEET HEALTH</p><h3>85% <span>Healthy vehicles</span></h3><p className="positive">↑ 6% <em>vs yesterday</em></p></div><div className="health-ring"><div><b>85</b><span>%</span></div></div></section>
