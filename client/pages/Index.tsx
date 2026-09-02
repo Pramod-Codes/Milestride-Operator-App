@@ -72,7 +72,7 @@ function ThemeToggle() {
 
 function TopBar({ title, onBack, action }: { title?: string; onBack?: () => void; action?: React.ReactNode }) {
   return <header className="topbar">
-    {onBack ? <button className="icon-btn" onClick={onBack}><ArrowLeft size={20} /></button> : <div className="brand-mark"><span>M</span><b>MILESTRIDE</b></div>}
+    {onBack ? <button className="icon-btn" onClick={onBack}><ArrowLeft size={20} /></button> : <div className="topbar-spacer" />}
     {title && <h1>{title}</h1>}
     <div className="top-actions"><ThemeToggle />{action || <button className="icon-btn notification-btn"><Bell size={20} /><i /></button>}</div>
   </header>;
