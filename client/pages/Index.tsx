@@ -31,7 +31,7 @@ import {
   X,
 } from "lucide-react";
 
-const bikeImage = "https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=900&q=85";
+const bikeImage = "https://images.pexels.com/photos/34259660/pexels-photo-34259660.jpeg?auto=compress&cs=tinysrgb&w=900";
 
 const metrics = [
   { value: "07", label: "Attention", tone: "amber", icon: AlertTriangle },
