@@ -1,5 +1,6 @@
-const CACHE_NAME = "milestride-hub-v1";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/icon-192.svg", "/icon-512.svg"];
+const CACHE_NAME = "milestride-hub-v2";
+const APP_ROOT = self.registration.scope;
+const APP_SHELL = [APP_ROOT, `${APP_ROOT}manifest.webmanifest`, `${APP_ROOT}icon-192.svg`, `${APP_ROOT}icon-512.svg`];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
@@ -19,5 +20,5 @@ self.addEventListener("fetch", event => {
       caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
     }
     return response;
-  }).catch(() => caches.match("/"))));
+  }).catch(() => caches.match(APP_ROOT))));
 });
