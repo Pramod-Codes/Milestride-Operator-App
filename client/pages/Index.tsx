@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -24,6 +24,8 @@ import {
   Settings,
   ShieldCheck,
   SlidersHorizontal,
+  Moon,
+  Sun,
   UserRound,
   Wrench,
   X,
@@ -55,11 +57,24 @@ function StatusBadge({ children, tone = "green" }: { children: React.ReactNode; 
   return <span className={`status status-${tone}`}><span className="status-dot" />{children}</span>;
 }
 
+function ThemeToggle() {
+  const [dark, setDark] = useState(() => {
+    const preference = localStorage.getItem("milestride-theme");
+    return preference ? preference === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+    localStorage.setItem("milestride-theme", dark ? "dark" : "light");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#101817" : "#f3f6f5");
+  }, [dark]);
+  return <button className="icon-btn theme-toggle" aria-label="Toggle dark mode" onClick={() => setDark(value => !value)}>{dark ? <Sun size={18} /> : <Moon size={18} />}</button>;
+}
+
 function TopBar({ title, onBack, action }: { title?: string; onBack?: () => void; action?: React.ReactNode }) {
   return <header className="topbar">
     {onBack ? <button className="icon-btn" onClick={onBack}><ArrowLeft size={20} /></button> : <div className="brand-mark"><span>M</span><b>MILESTRIDE</b></div>}
     {title && <h1>{title}</h1>}
-    <div className="top-actions">{action || <button className="icon-btn"><Bell size={20} /><i /></button>}</div>
+    <div className="top-actions"><ThemeToggle />{action || <button className="icon-btn notification-btn"><Bell size={20} /><i /></button>}</div>
   </header>;
 }
 
