@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 const App = () => {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register(new URL("service-worker.js", import.meta.env.BASE_URL)).catch(() => undefined);
+      navigator.serviceWorker.register("./service-worker.js").catch(() => undefined);
     }
   }, []);
 

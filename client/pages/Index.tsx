@@ -32,6 +32,10 @@ import {
 } from "lucide-react";
 
 const bikeImage = "https://images.pexels.com/photos/34259660/pexels-photo-34259660.jpeg?auto=compress&cs=tinysrgb&w=900";
+const hubImages = {
+  indiranagar: "https://images.pexels.com/photos/32397426/pexels-photo-32397426.jpeg?auto=compress&cs=tinysrgb&w=500",
+  koramangala: "https://images.pexels.com/photos/37851831/pexels-photo-37851831.jpeg?auto=compress&cs=tinysrgb&w=500",
+};
 const currentDate = new Date();
 const dateLabel = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(currentDate);
 const dayLabel = new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "short", year: "numeric" }).format(currentDate).toUpperCase();
@@ -96,7 +100,7 @@ function HomeView({ setView }: { setView: (v: View) => void }) {
       <section className="health-card"><div><p className="eyebrow">FLEET HEALTH</p><h3>85% <span>Healthy vehicles</span></h3><p className="positive">↑ 6% <em>vs yesterday</em></p></div><div className="health-ring"><div><b>85</b><span>%</span></div></div></section>
       <section><div className="section-heading"><h3>Quick actions</h3></div><div className="quick-actions"><button className="primary action-card" onClick={() => setView("scanner")}><QrCode size={20} /><span>Scan vehicle</span><ChevronRight size={16} /></button><button className="secondary action-card" onClick={() => setView("report")}><FileText size={20} /><span>Report issue</span><ChevronRight size={16} /></button></div></section>
       <section><div className="section-heading"><h3>Needs attention</h3><button className="text-btn" onClick={() => setView("vehicles")}>View all</button></div><div className="attention-list"><button className="vehicle-row" onClick={() => setView("vehicle")}><div className="vehicle-thumb"><Bike size={21} /></div><div className="vehicle-copy"><strong>MS 2048</strong><span>E Bike X1 · Indiranagar Hub</span><StatusBadge tone="amber">Lights issue</StatusBadge></div><ChevronRight size={17} /></button><button className="vehicle-row"><div className="round-icon blue"><BatteryCharging size={18} /></div><div className="vehicle-copy"><strong>MS 2017</strong><span>E Bike X1 · Koramangala Hub</span><StatusBadge tone="blue">Low battery</StatusBadge></div><ChevronRight size={17} /></button></div></section>
-      <section className="offline-banner"><span className="offline-dot" /><div><strong>All data is up to date</strong><p>Last synced 2 minutes ago</p></div><ChevronRight size={17} /></section>
+      <section className="offline-banner"><span className="offline-dot" /><div><strong>All data is up to date</strong><p>Last synced 2 minutes ago</p></div><ChevronRight size={17} /></section><section><div className="section-heading"><h3>Hub pulse</h3><button className="text-btn">View hubs</button></div><div className="hub-grid"><div className="hub-card"><img src={hubImages.indiranagar} /><strong>Indiranagar</strong><span>18 active vehicles</span></div><div className="hub-card"><img src={hubImages.koramangala} /><strong>Koramangala</strong><span>12 active vehicles</span></div></div></section>
     </main><BottomNav active="home" setView={setView} />
   </>;
 }
