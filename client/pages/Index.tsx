@@ -33,8 +33,8 @@ import {
 
 const bikeImage = "https://images.pexels.com/photos/9538570/pexels-photo-9538570.jpeg?auto=compress&cs=tinysrgb&w=900";
 const hubImages = {
-  indiranagar: "https://images.pexels.com/photos/34259660/pexels-photo-34259660.jpeg?auto=compress&cs=tinysrgb&w=500",
-  koramangala: "https://images.pexels.com/photos/24198/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=500",
+  indiranagar: "https://images.pexels.com/photos/34259660/pexels-photo-34259660.jpeg",
+  koramangala: "https://images.pexels.com/photos/24198/pexels-photo.jpg",
 };
 const currentDate = new Date();
 const dateLabel = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(currentDate);
