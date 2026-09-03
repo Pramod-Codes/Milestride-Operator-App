@@ -1,4 +1,4 @@
-const CACHE_NAME = "milestride-hub-v2";
+const CACHE_NAME = "milestride-hub-v3";
 const APP_ROOT = self.registration.scope;
 const APP_SHELL = [APP_ROOT, `${APP_ROOT}manifest.webmanifest`, `${APP_ROOT}icon-192.svg`, `${APP_ROOT}icon-512.svg`, `${APP_ROOT}favicon.svg`];
 
