@@ -65,7 +65,7 @@ const checklist = [
   ["Lights", "Issue detected", false], ["Chain", "Good", true], ["Bell", "Good", true],
 ];
 
-type View = "home" | "vehicles" | "tasks" | "alerts" | "profile" | "scanner" | "vehicle" | "inspection" | "report" | "submitted" | "issue";
+type View = "home" | "vehicles" | "tasks" | "alerts" | "profile" | "charging" | "scanner" | "vehicle" | "inspection" | "report" | "submitted" | "issue";
 
 function StatusBadge({ children, tone = "green" }: { children: React.ReactNode; tone?: string }) {
   return <span className={`status status-${tone}`}><span className="status-dot" />{children}</span>;
@@ -101,7 +101,7 @@ function HomeView({ setView }: { setView: (v: View) => void }) {
   return <>
     <main className="page home-page">
       <section className="greeting"><div><p className="eyebrow">{dayLabel}</p><h2>Hello, Arjun</h2><p className="muted">Here’s what needs your attention today.</p></div><div className="avatar">AK</div></section>
-      <section><div className="section-heading"><h3>Overview</h3><span className="muted small">Today, {shortDateLabel}</span></div><div className="metrics">{metrics.map(({ value, label, tone, icon: Icon }) => <button className={`metric-card ${tone}`} key={label} onClick={() => setView(({ amber: "vehicles", red: "alerts", blue: "tasks", green: "vehicles" } as Record<string, View>)[tone])} aria-label={`View ${label} details`}><div className="metric-icon"><Icon size={15} /></div><strong>{value}</strong><span>{label}</span></button>)}</div></section>
+      <section><div className="section-heading"><h3>Overview</h3><span className="muted small">Today, {shortDateLabel}</span></div><div className="metrics">{metrics.map(({ value, label, tone, icon: Icon }) => <button className={`metric-card ${tone}`} key={label} onClick={() => setView(({ amber: "vehicles", red: "alerts", blue: "tasks", green: "charging" } as Record<string, View>)[tone])} aria-label={`View ${label} details`}><div className="metric-icon"><Icon size={15} /></div><strong>{value}</strong><span>{label}</span></button>)}</div></section>
       <section className="health-card"><div><p className="eyebrow">FLEET HEALTH</p><h3>85% <span>Healthy vehicles</span></h3><p className="positive">↑ 6% <em>vs yesterday</em></p></div><div className="health-ring"><div><b>85</b><span>%</span></div></div></section>
       <section><div className="section-heading"><h3>Quick actions</h3></div><div className="quick-actions"><button className="primary action-card" onClick={() => setView("scanner")}><QrCode size={20} /><span>Scan vehicle</span><ChevronRight size={16} /></button><button className="secondary action-card" onClick={() => setView("report")}><FileText size={20} /><span>Report issue</span><ChevronRight size={16} /></button></div></section>
       <section><div className="section-heading"><h3>Needs attention</h3><button className="text-btn" onClick={() => setView("vehicles")}>View all</button></div><div className="attention-list"><button className="vehicle-row" onClick={() => setView("vehicle")}><div className="vehicle-thumb"><Bike size={21} /></div><div className="vehicle-copy"><strong>MS 2048</strong><span>E Bike X1 · Indiranagar Hub</span><StatusBadge tone="amber">Lights issue</StatusBadge></div><ChevronRight size={17} /></button><button className="vehicle-row"><div className="round-icon blue"><BatteryCharging size={18} /></div><div className="vehicle-copy"><strong>MS 2017</strong><span>E Bike X1 · Koramangala Hub</span><StatusBadge tone="blue">Low battery</StatusBadge></div><ChevronRight size={17} /></button></div></section>
@@ -135,6 +135,10 @@ function Submitted({ setView }: { setView: (v: View) => void }) {
   return <div className="success-screen"><div className="success-circle"><Check size={34} /></div><p className="eyebrow">REPORT RECEIVED</p><h2>Issue reported<br />successfully</h2><p className="muted center">We've notified the maintenance team and will update you soon.</p><div className="ticket"><span>Ticket ID</span><strong>#IS-7856</strong><span>Submitted just now · MS 2048</span></div><div className="success-actions"><button className="primary full" onClick={() => setView("issue")}>View issue</button><button className="secondary full" onClick={() => setView("home")}>Back to home</button></div></div>;
 }
 
+function ChargingView({ setView }: { setView: (v: View) => void }) {
+  return <><TopBar title="Charging" onBack={() => setView("home")} /><main className="page list-page"><section className="health-card"><div><p className="eyebrow">CHARGING OVERVIEW</p><h3>08 <span>Vehicles charging</span></h3><p className="positive">↑ 2 <em>since yesterday</em></p></div><div className="round-icon blue"><BatteryCharging size={24} /></div></section><div className="section-heading"><h3>Active charging</h3><span className="muted small">08 vehicles</span></div><div className="list-stack">{["MS 2017", "MS 2022", "MS 2031"].map((id, index) => <div className="task-card" key={id}><div className="task-icon"><BatteryCharging size={18} /></div><div><strong>{id}</strong><span>{index === 0 ? "Koramangala Hub · 24% battery" : "Indiranagar Hub · Charging"}</span></div><StatusBadge tone="blue">Charging</StatusBadge></div>)}</div><div className="offline-banner"><span className="offline-dot" /><div><strong>8 vehicles are charging safely</strong><p>Next review in 18 minutes</p></div></div></main></>;
+}
+
 function ListView({ type, setView }: { type: View; setView: (v: View) => void }) {
   const isVehicles = type === "vehicles";
   const [filter, setFilter] = useState("All");
@@ -154,6 +158,7 @@ export default function Index() {
   if (view === "report") return <Report setView={setView} />;
   if (view === "submitted") return <Submitted setView={setView} />;
   if (view === "issue") return <Issue setView={setView} />;
+  if (view === "charging") return <ChargingView setView={setView} />;
   if (["vehicles", "tasks", "alerts", "profile"].includes(view)) return <ListView type={view} setView={setView} />;
   return <HomeView setView={setView} />;
 }
