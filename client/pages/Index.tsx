@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -111,7 +111,20 @@ function HomeView({ setView }: { setView: (v: View) => void }) {
 }
 
 function Scanner({ setView }: { setView: (v: View) => void }) {
-  return <div className="scanner"><div className="scanner-top"><button className="light-btn" onClick={() => setView("home")}><X size={20} /></button><span>Scan vehicle</span><button className="light-btn"><MoreHorizontal size={20} /></button></div><div className="camera-stage"><div className="scan-copy"><p>SCAN VEHICLE</p><h2>Align QR code within<br />the frame to scan</h2></div><div className="scan-frame"><span /><span /><span /><span /><div className="scan-line" /><QrCode size={78} strokeWidth={1.2} /></div><p className="scan-hint">Place the vehicle QR code inside the frame</p></div><div className="scanner-bottom"><button className="scan-result" onClick={() => setView("vehicle")}><div className="success-mini"><Check size={17} /></div><div><strong>MS 2048</strong><span>Vehicle detected</span></div><ChevronRight size={18} /></button><button className="manual-link">Enter vehicle ID manually</button></div></div>;
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  useEffect(() => {
+    let stream: MediaStream | undefined;
+    navigator.mediaDevices?.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false }).then(result => {
+      stream = result;
+      if (videoRef.current) {
+        videoRef.current.srcObject = result;
+        setCameraReady(true);
+      }
+    }).catch(() => setCameraReady(false));
+    return () => stream?.getTracks().forEach(track => track.stop());
+  }, []);
+  return <div className="scanner"><div className="scanner-top"><button className="light-btn" onClick={() => setView("home")}><X size={20} /></button><span>Scan vehicle</span><button className="light-btn"><MoreHorizontal size={20} /></button></div><div className="camera-stage">{cameraReady && <video ref={videoRef} className="camera-feed" autoPlay playsInline muted />}<div className="scan-copy"><p>SCAN VEHICLE</p><h2>Align QR code within<br />the frame to scan</h2></div><div className="scan-frame"><span /><span /><span /><span /><div className="scan-line" /><QrCode size={78} strokeWidth={1.2} /></div><p className="scan-hint">Place the vehicle QR code inside the frame</p></div><div className="scanner-bottom"><button className="scan-result" onClick={() => setView("vehicle")}><div className="success-mini"><Check size={17} /></div><div><strong>MS 2048</strong><span>Vehicle detected</span></div><ChevronRight size={18} /></button><button className="manual-link">Enter vehicle ID manually</button></div></div>;
 }
 
 function Vehicle({ setView }: { setView: (v: View) => void }) {
