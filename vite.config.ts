@@ -4,8 +4,8 @@ import path from "node:path";
 import { createServer } from "./server";
 
 // https://vitejs.dev/config/
-export default defineConfig(() => ({
-  base: "Milestride-Operator-App",
+export default defineConfig(({ mode }) => ({
+  base: "",
   server: {
     host: "::",
     port: 8080,

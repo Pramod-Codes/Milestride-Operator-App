@@ -1,6 +1,6 @@
 const CACHE_NAME = "milestride-hub-v2";
 const APP_ROOT = self.registration.scope;
-const APP_SHELL = [APP_ROOT, `${APP_ROOT}manifest.webmanifest`, `${APP_ROOT}icon-192.svg`, `${APP_ROOT}icon-512.svg`];
+const APP_SHELL = [APP_ROOT, `${APP_ROOT}manifest.webmanifest`, `${APP_ROOT}icon-192.svg`, `${APP_ROOT}icon-512.svg`, `${APP_ROOT}favicon.svg`];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
