@@ -35,8 +35,8 @@ type HubName = "University Campus" | "Shopping Complex" | "Global Tech Park" | "
 const hubs: { name: HubName; image: string; healthy: number; attention: number; maintenance: number; charging: number }[] = [
   { name: "University Campus", image: "https://images.pexels.com/photos/34259660/pexels-photo-34259660.jpeg", healthy: 18, attention: 2, maintenance: 3, charging: 4 },
   { name: "Shopping Complex", image: "https://images.pexels.com/photos/24198/pexels-photo.jpg", healthy: 14, attention: 1, maintenance: 2, charging: 3 },
-  { name: "Global Tech Park", image: "https://images.pexels.com/photos/3184436/pexels-photo-3184436.jpeg", healthy: 22, attention: 3, maintenance: 4, charging: 5 },
-  { name: "Metro Station", image: "https://images.pexels.com/photos/302428/pexels-photo-302428.jpeg", healthy: 16, attention: 1, maintenance: 2, charging: 4 },
+  { name: "Global Tech Park", image: "https://images.pexels.com/photos/31665482/pexels-photo-31665482.jpeg", healthy: 22, attention: 3, maintenance: 4, charging: 5 },
+  { name: "Metro Station", image: "https://images.pexels.com/photos/36990781/pexels-photo-36990781.jpeg", healthy: 16, attention: 1, maintenance: 2, charging: 4 },
 ];
 
 const hubImages = Object.fromEntries(hubs.map(hub => [hub.name, hub.image])) as Record<HubName, string>;
