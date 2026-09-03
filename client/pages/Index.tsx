@@ -75,7 +75,7 @@ function ThemeToggle() {
     localStorage.setItem("milestride-theme", dark ? "dark" : "light");
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#101817" : "#f3f6f5");
   }, [dark]);
-  return <button className="theme-switch" aria-label="Toggle dark mode" aria-pressed={dark} onClick={() => setDark(value => !value)}><span>{dark ? "Light mode" : "Dark mode"}</span><span className="switch-track"><span className="switch-knob">{dark ? <Sun size={11} /> : <Moon size={11} />}</span></span></button>;
+  return <button className="theme-switch" aria-label="Toggle dark mode" aria-pressed={dark} onClick={() => setDark(value => !value)}><span>{dark ? "Dark Mode" : "Light Mode"}</span><span className="switch-track"><span className="switch-knob">{dark ? <Sun size={11} /> : <Moon size={11} />}</span></span></button>;
 }
 
 function TopBar({ title, onBack, action }: { title?: string; onBack?: () => void; action?: React.ReactNode }) {
