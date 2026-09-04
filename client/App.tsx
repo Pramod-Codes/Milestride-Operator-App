@@ -9,7 +9,12 @@ import NotFound from "./pages/NotFound";
 const App = () => {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js").catch(() => undefined);
+      if (import.meta.env.PROD) {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => undefined);
+      } else {
+        navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(registration => registration.unregister()));
+        window.caches?.keys().then(keys => keys.filter(key => key.startsWith("milestride-hub-")).forEach(key => window.caches.delete(key)));
+      }
     }
   }, []);
 
