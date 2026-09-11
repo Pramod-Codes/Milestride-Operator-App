@@ -89,7 +89,7 @@ function StatusBadge({ children, tone = "green" }: { children: React.ReactNode; 
 function ThemeToggle() {
   const [dark, setDark] = useState(() => {
     const preference = localStorage.getItem("milestride-theme");
-    return preference ? preference === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return preference ? preference === "dark" : true;
   });
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
