@@ -78,12 +78,20 @@ const initialTaskItems: FleetTask[] = [
   { id: "TS-1017", name: "Charging check MS 2017", status: "Closed", due: "Closed today · 08:40 AM", tone: "green", hub: "Shopping Complex", completionComment: "Charging confirmed and safety check passed.", proofImages: [] },
 ];
 
+type AlertItem = { id: string; status: string; tone: string; vehicle: string; title: string; time: string; hub: HubName; ticketNumber: string; details: string; assignedTo: string };
+const alertItems: AlertItem[] = [
+  { id: "AL-2048", status: "Critical", tone: "red", vehicle: "MS 2048", title: "Front light failure", time: "8 min ago", hub: "University Campus", ticketNumber: "IS-7856", details: "The front light did not turn on during the vehicle inspection. Keep the bike out of service until the replacement light is installed and tested.", assignedTo: "Ramesh Kumar · Maintenance" },
+  { id: "AL-2017", status: "Warning", tone: "amber", vehicle: "MS 2017", title: "Battery below recommended level", time: "32 min ago", hub: "Shopping Complex", ticketNumber: "CH-7812", details: "Battery charge is below the recommended operating threshold. Move the vehicle to an available charging point and check the battery connection.", assignedTo: "Charging team · Shopping Complex" },
+  { id: "AL-2091", status: "Information", tone: "blue", vehicle: "MS 2091", title: "Inspection completed", time: "1 hr ago", hub: "Global Tech Park", ticketNumber: "IN-7791", details: "The scheduled inspection was completed and all checklist items passed. The vehicle is cleared for service.", assignedTo: "Arjun Kumar · Hub Operator" },
+  { id: "AL-2033", status: "Resolved", tone: "green", vehicle: "MS 2033", title: "Brake adjustment completed", time: "Yesterday", hub: "Metro Station", ticketNumber: "IS-7733", details: "The brake cable was adjusted and a road test passed. The vehicle is back in service.", assignedTo: "Ramesh Kumar · Maintenance" },
+];
+
 const checklist = [
   ["Brakes", "Good", true], ["Tires", "Good", true], ["Battery", "Good", true],
   ["Lights", "Issue detected", false], ["Chain", "Good", true], ["Bell", "Good", true],
 ];
 
-type View = "home" | "vehicles" | "tasks" | "task" | "alerts" | "profile" | "preferences" | "appearance" | "notifications" | "help" | "charging" | "scanner" | "vehicle" | "inspection" | "report" | "submitted" | "issue" | "splash" | "signin";
+type View = "home" | "vehicles" | "tasks" | "task" | "alerts" | "alert" | "profile" | "preferences" | "appearance" | "notifications" | "help" | "charging" | "scanner" | "vehicle" | "inspection" | "report" | "submitted" | "issue" | "splash" | "signin";
 
 function StatusBadge({ children, tone = "green" }: { children: React.ReactNode; tone?: string }) {
   return <span className={`status status-${tone}`}><span className="status-dot" />{children}</span>;
@@ -214,6 +222,17 @@ function TasksView({ tasks, setView, openTask }: { tasks: FleetTask[]; setView: 
   return <><TopBar title="Tasks" onBack={() => setView("home")} /><main className="page list-page"><div className="filter-row">{filters.map(item => <button className={`filter ${filter === item ? "active-filter" : ""}`} onClick={() => setFilter(item)} key={item}>{item}</button>)}</div>{visibleTasks.length ? <div className="list-stack">{visibleTasks.map(task => <button className="task-card task-card-button" key={task.id} onClick={() => openTask(task.id)}><div className="task-icon"><ClipboardCheck size={18} /></div><div className="task-card-copy"><strong>{task.name}</strong><span>{task.id} · {task.hub}</span><span>{task.due}</span></div><div className="task-card-status"><StatusBadge tone={task.status === "Pending" ? "amber" : task.status === "Closed" ? "green" : "blue"}>{task.status === "Resolved" ? "Awaiting review" : task.status}</StatusBadge><ChevronRight size={17} /></div></button>)}</div> : <div className="task-empty"><ClipboardCheck size={24} /><strong>No {filter.toLowerCase()} tasks</strong><span>Tasks in this state will appear here.</span></div>}</main><BottomNav active="tasks" setView={setView} /></>;
 }
 
+function AlertDetail({ alert, setView }: { alert: AlertItem; setView: (v: View) => void }) {
+  return <><TopBar title="Alert details" onBack={() => setView("alerts")} /><main className="page alert-detail-page"><div className="alert-detail-heading"><div className={`alert-symbol ${alert.tone}`}><AlertTriangle size={20} /></div><div><p className="eyebrow">ALERT {alert.id}</p><h2>{alert.title}</h2></div><StatusBadge tone={alert.tone}>{alert.status}</StatusBadge></div><section className="alert-ticket"><div><span>Associated ticket</span><strong>#{alert.ticketNumber}</strong></div><StatusBadge tone={alert.tone}>{alert.status === "Resolved" ? "Resolved" : "Open"}</StatusBadge></section><section className="alert-detail-card"><h3>Alert information</h3><p>{alert.details}</p><div className="alert-facts"><div><span>Vehicle</span><strong>{alert.vehicle}</strong></div><div><span>Hub</span><strong>{alert.hub}</strong></div><div><span>Reported</span><strong>{alert.time}</strong></div><div><span>Assigned to</span><strong>{alert.assignedTo}</strong></div></div></section><section className="alert-timeline"><h3>Ticket activity</h3><div className="timeline-item done"><i><Check size={14} /></i><div><strong>Alert created</strong><span>{alert.time} · {alert.vehicle}</span></div></div><div className={`timeline-item ${alert.status === "Resolved" ? "done" : "current"}`}><i>{alert.status === "Resolved" ? <Check size={14} /> : <Wrench size={14} />}</i><div><strong>{alert.status === "Resolved" ? "Ticket resolved" : "Assigned for follow-up"}</strong><span>{alert.assignedTo}</span><p>{alert.status === "Resolved" ? "The ticket has been resolved and the vehicle is cleared." : "Follow up with the assigned team using the ticket number above."}</p></div></div></section></main></>;
+}
+
+function AlertsView({ setView, openAlert }: { setView: (v: View) => void; openAlert: (alertId: string) => void }) {
+  const [filter, setFilter] = useState("All");
+  const filters = ["All", "Critical", "Warning", "Information", "Resolved"];
+  const visibleAlerts = alertItems.filter(alert => filter === "All" || alert.status === filter);
+  return <><TopBar title="Alerts" onBack={() => setView("home")} /><main className="page list-page"><div className="filter-row">{filters.map(item => <button className={`filter ${filter === item ? "active-filter" : ""}`} onClick={() => setFilter(item)} key={item}>{item}</button>)}</div><div className="list-stack">{visibleAlerts.map(alert => <button className="alert-card alert-card-button" key={alert.id} onClick={() => openAlert(alert.id)}><div className={`alert-symbol ${alert.tone}`}><AlertTriangle size={17} /></div><div className="alert-card-copy"><StatusBadge tone={alert.tone}>{alert.status}</StatusBadge><strong>{alert.vehicle} · {alert.title}</strong><span>{alert.time} · Ticket #{alert.ticketNumber}</span></div><ChevronRight size={17} /></button>)}</div></main><BottomNav active="alerts" setView={setView} /></>;
+}
+
 function ListView({ type, setView, selectedHub }: { type: View; setView: (v: View) => void; selectedHub: HubName }) {
   const isVehicles = type === "vehicles";
   const [filter, setFilter] = useState("All");
@@ -249,9 +268,14 @@ export default function Index() {
     return savedTasks ? JSON.parse(savedTasks) as FleetTask[] : initialTaskItems;
   });
   const [selectedTaskId, setSelectedTaskId] = useState(initialTaskItems[0].id);
+  const [selectedAlertId, setSelectedAlertId] = useState(alertItems[0].id);
   const openTask = (taskId: string) => {
     setSelectedTaskId(taskId);
     setView("task");
+  };
+  const openAlert = (alertId: string) => {
+    setSelectedAlertId(alertId);
+    setView("alert");
   };
   const updateTask = (updatedTask: FleetTask) => setTasks(current => current.map(task => task.id === updatedTask.id ? updatedTask : task));
   useLayoutEffect(() => {
@@ -276,6 +300,8 @@ export default function Index() {
   if (view === "charging") return <ChargingView setView={setView} />;
   if (view === "task") return <TaskDetail task={tasks.find(task => task.id === selectedTaskId)!} setView={setView} updateTask={updateTask} />;
   if (view === "tasks") return <TasksView tasks={tasks} setView={setView} openTask={openTask} />;
-  if (["vehicles", "alerts", "profile"].includes(view)) return <ListView type={view} setView={setView} selectedHub={selectedHub} />;
+  if (view === "alert") return <AlertDetail alert={alertItems.find(alert => alert.id === selectedAlertId)!} setView={setView} />;
+  if (view === "alerts") return <AlertsView setView={setView} openAlert={openAlert} />;
+  if (["vehicles", "profile"].includes(view)) return <ListView type={view} setView={setView} selectedHub={selectedHub} />;
   return <HomeView setView={setView} selectedHub={selectedHub} setSelectedHub={setSelectedHub} tasks={tasks} openTask={openTask} />;
 }
