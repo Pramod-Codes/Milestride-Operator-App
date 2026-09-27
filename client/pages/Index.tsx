@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -201,6 +201,11 @@ function Issue({ setView }: { setView: (v: View) => void }) {
 export default function Index() {
   const [view, setView] = useState<View>("splash");
   const [selectedHub, setSelectedHub] = useState<HubName>("University Campus");
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("milestride-theme", "dark");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#101817");
+  }, []);
   useEffect(() => {
     const timer = window.setTimeout(() => setView("signin"), 1100);
     return () => window.clearTimeout(timer);
