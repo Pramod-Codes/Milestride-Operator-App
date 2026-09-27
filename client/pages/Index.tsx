@@ -59,7 +59,7 @@ const metrics = [
   { value: "08", label: "Charging", tone: "green", icon: BatteryCharging },
 ];
 
-const vehicles = [
+const seedVehicles = [
   { id: "MS 2048", model: "E Bike X1", status: "Needs attention", battery: "86%", range: "32 km", hub: "University Campus" as HubName, tone: "amber" },
   { id: "MS 2049", model: "E Bike X1", status: "Active", battery: "91%", range: "35 km", hub: "University Campus" as HubName, tone: "green" },
   { id: "MS 2050", model: "E Bike X2", status: "Maintenance", battery: "62%", range: "20 km", hub: "Shopping Complex" as HubName, tone: "red" },
@@ -73,6 +73,22 @@ const vehicles = [
   { id: "MS 2022", model: "E Bike X1", status: "Active", battery: "93%", range: "33 km", hub: "Shopping Complex" as HubName, tone: "green" },
   { id: "MS 2091", model: "E Bike X2", status: "Active", battery: "88%", range: "32 km", hub: "Global Tech Park" as HubName, tone: "green" },
 ];
+
+const vehicles = hubs.flatMap((hub, hubIndex) => {
+  const existing = seedVehicles.filter(vehicle => vehicle.hub === hub.name);
+  const targets = [
+    { status: "Active", count: hub.healthy, tone: "green", battery: 82, range: 31 },
+    { status: "Needs attention", count: hub.attention, tone: "amber", battery: 22, range: 7 },
+    { status: "Maintenance", count: hub.maintenance, tone: "blue", battery: 58, range: 19 },
+    { status: "Charging", count: hub.charging, tone: "blue", battery: 46, range: 16 },
+  ];
+  let generatedIndex = 0;
+  const generated = targets.flatMap(target => Array.from({ length: Math.max(0, target.count - existing.filter(vehicle => vehicle.status === target.status).length) }, () => {
+    const serial = String(3000 + hubIndex * 100 + generatedIndex++).padStart(4, "0");
+    return { id: `MS ${serial}`, model: generatedIndex % 2 ? "E Bike X1" : "E Bike X2", status: target.status, battery: `${target.battery}%`, range: `${target.range} km`, hub: hub.name, tone: target.tone };
+  }));
+  return [...existing, ...generated];
+});
 
 type TaskStatus = "Pending" | "In Progress" | "Awaiting Review" | "Resolved" | "Closed";
 type FleetTask = { id: string; name: string; status: TaskStatus; due: string; tone: string; hub: HubName; assignedTo: string; ticketNumber?: string; issueDetails: string; resolutionChecklist: string[]; checkedSteps: string[]; acknowledgedAt?: string; completionComment: string; proofImages: string[] };
@@ -265,18 +281,19 @@ function VehicleCard({ vehicle, tasks, onClick }: { vehicle: typeof vehicles[num
   return <button className="fleet-card" onClick={onClick}><div className="fleet-card-top"><div><strong>{currentVehicle.id}</strong><span>{currentVehicle.model} · {currentVehicle.hub}</span><span className="vehicle-operational-status">Status · {currentVehicle.status}</span></div><StatusBadge tone={needsAttention ? "amber" : "green"}>{needsAttention ? "Needs attention" : "Good Condition"}</StatusBadge></div><div className="fleet-card-meta"><span><BatteryCharging size={14} /> {currentVehicle.battery}</span><span><MapPin size={14} /> {currentVehicle.range}</span><span><ClipboardCheck size={14} /> {task ? `${task.id} · ${task.status}` : "No open task"}</span></div></button>;
 }
 
-function ListView({ type, setView, tasks, openVehicle }: { type: View; setView: (v: View) => void; tasks: FleetTask[]; openVehicle: (vehicleId: string, returnView?: View) => void }) {
+function ListView({ type, setView, selectedHub, tasks, openVehicle }: { type: View; setView: (v: View) => void; selectedHub: HubName; tasks: FleetTask[]; openVehicle: (vehicleId: string, returnView?: View) => void }) {
   const isVehicles = type === "vehicles";
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const filters = type === "alerts" ? ["All", "Critical", "Warning", "Information", "Resolved"] : ["All", "Pending", "In Progress", "Completed"];
-  const visibleVehicles = vehicles.filter(vehicle => {
+  const hubVehicles = vehicles.filter(vehicle => vehicle.hub === selectedHub);
+  const visibleVehicles = hubVehicles.filter(vehicle => {
     const currentVehicle = getVehicleStatus(vehicle, tasks);
     const task = getVehicleTask(vehicle.id, tasks);
     const condition = task ? task.status !== "Closed" ? "Needs attention" : "Good Condition" : ["Needs attention", "Maintenance"].includes(currentVehicle.status) ? "Needs attention" : "Good Condition";
     return `${vehicle.id} ${vehicle.model} ${vehicle.hub} ${currentVehicle.status} ${condition}`.toLowerCase().includes(searchTerm.trim().toLowerCase());
   });
-  return <><TopBar title={isVehicles ? "Vehicles" : type === "tasks" ? "Tasks" : type === "alerts" ? "Alerts" : "Profile"} onBack={() => setView("home")} action={undefined} /><main className="page list-page">{isVehicles ? <div className="search"><Search size={18} /><input placeholder="Search vehicles" value={searchTerm} onChange={event => setSearchTerm(event.target.value)} /></div> : type === "profile" ? null : <div className="filter-row">{filters.map(item => <button className={`filter ${filter === item ? "active-filter" : ""}`} onClick={() => setFilter(item)} key={item}>{item}</button>)}</div>}{isVehicles ? <><div className="section-heading fleet-count"><h3>All vehicles</h3><span className="muted small">{visibleVehicles.length} of {vehicles.length} vehicles · all hubs</span></div><div className="list-stack">{visibleVehicles.map(vehicle => <VehicleCard key={vehicle.id} vehicle={vehicle} tasks={tasks} onClick={() => openVehicle(vehicle.id)} />)}</div></> : <div className="list-stack">{type === "alerts" ? [["Critical", "MS 2048 · Front light failure", "8 min ago", "red"], ["Warning", "MS 2017 · Battery below recommended level", "32 min ago", "amber"], ["Information", "MS 2091 · Inspection completed", "1 hr ago", "blue"], ["Resolved", "MS 2033 · Brake adjustment completed", "Yesterday", "green"]].filter(([status]) => filter === "All" || status === filter).map(([a,b,c,t]) => <div className="alert-card" key={b}><div className={`alert-symbol ${t}`}><AlertTriangle size={17} /></div><div><StatusBadge tone={t}>{a}</StatusBadge><strong>{b}</strong><span>{c}</span></div><ChevronRight size={17} /></div>) : type === "tasks" ? initialTaskItems.filter(item => filter === "All" || item.status === filter).map(({ name, status, due, tone }) => <div className="task-card" key={name}><div className="task-icon"><ClipboardCheck size={18} /></div><div><strong>{name}</strong><span>{due}</span></div><StatusBadge tone={tone}>{status}</StatusBadge></div>) : <div className="profile-card"><div className="large-avatar">AK</div><h2>Arjun Kumar</h2><p className="muted">Mobility Operator</p><button className="settings-row" onClick={() => setView("preferences")}><Settings size={18} /><span>App preferences</span><ChevronRight size={17} /></button><div className="settings-row"><Moon size={18} /><span>Appearance</span><ThemeToggle /></div><button className="settings-row" onClick={() => setView("notifications")}><Bell size={18} /><span>Notifications</span><ChevronRight size={17} /></button><button className="settings-row" onClick={() => setView("help")}><CircleHelp size={18} /><span>Help & support</span><ChevronRight size={17} /></button><button className="settings-row sign-out-row" onClick={() => setView("signin")}><LogOut size={18} /><span>Sign out</span><ChevronRight size={17} /></button></div>}</div>}</main><BottomNav active={type} setView={setView} /></>;
+  return <><TopBar title={isVehicles ? "Vehicles" : type === "tasks" ? "Tasks" : type === "alerts" ? "Alerts" : "Profile"} onBack={() => setView("home")} action={undefined} /><main className="page list-page">{isVehicles ? <div className="search"><Search size={18} /><input placeholder="Search vehicles" value={searchTerm} onChange={event => setSearchTerm(event.target.value)} /></div> : type === "profile" ? null : <div className="filter-row">{filters.map(item => <button className={`filter ${filter === item ? "active-filter" : ""}`} onClick={() => setFilter(item)} key={item}>{item}</button>)}</div>}{isVehicles ? <><div className="section-heading fleet-count"><h3>All vehicles</h3><span className="muted small">{visibleVehicles.length} of {hubVehicles.length} vehicles · {selectedHub}</span></div><div className="list-stack">{visibleVehicles.map(vehicle => <VehicleCard key={vehicle.id} vehicle={vehicle} tasks={tasks} onClick={() => openVehicle(vehicle.id)} />)}</div></> : <div className="list-stack">{type === "alerts" ? [["Critical", "MS 2048 · Front light failure", "8 min ago", "red"], ["Warning", "MS 2017 · Battery below recommended level", "32 min ago", "amber"], ["Information", "MS 2091 · Inspection completed", "1 hr ago", "blue"], ["Resolved", "MS 2033 · Brake adjustment completed", "Yesterday", "green"]].filter(([status]) => filter === "All" || status === filter).map(([a,b,c,t]) => <div className="alert-card" key={b}><div className={`alert-symbol ${t}`}><AlertTriangle size={17} /></div><div><StatusBadge tone={t}>{a}</StatusBadge><strong>{b}</strong><span>{c}</span></div><ChevronRight size={17} /></div>) : type === "tasks" ? initialTaskItems.filter(item => filter === "All" || item.status === filter).map(({ name, status, due, tone }) => <div className="task-card" key={name}><div className="task-icon"><ClipboardCheck size={18} /></div><div><strong>{name}</strong><span>{due}</span></div><StatusBadge tone={tone}>{status}</StatusBadge></div>) : <div className="profile-card"><div className="large-avatar">AK</div><h2>Arjun Kumar</h2><p className="muted">Mobility Operator</p><button className="settings-row" onClick={() => setView("preferences")}><Settings size={18} /><span>App preferences</span><ChevronRight size={17} /></button><div className="settings-row"><Moon size={18} /><span>Appearance</span><ThemeToggle /></div><button className="settings-row" onClick={() => setView("notifications")}><Bell size={18} /><span>Notifications</span><ChevronRight size={17} /></button><button className="settings-row" onClick={() => setView("help")}><CircleHelp size={18} /><span>Help & support</span><ChevronRight size={17} /></button><button className="settings-row sign-out-row" onClick={() => setView("signin")}><LogOut size={18} /><span>Sign out</span><ChevronRight size={17} /></button></div>}</div>}</main><BottomNav active={type} setView={setView} /></>;
 }
 
 function Splash() {
@@ -365,6 +382,6 @@ export default function Index() {
     return <AlertDetail alert={alert} ticketTask={ticketTask} setView={setView} backView={alertReturnView} openTask={openTask} />;
   }
   if (view === "alerts") return <AlertsView setView={setView} openAlert={openAlert} tasks={tasks} />;
-  if (["vehicles", "profile"].includes(view)) return <ListView type={view} setView={setView} tasks={tasks} openVehicle={openVehicle} />;
+  if (["vehicles", "profile"].includes(view)) return <ListView type={view} setView={setView} selectedHub={selectedHub} tasks={tasks} openVehicle={openVehicle} />;
   return <HomeView setView={setView} selectedHub={selectedHub} setSelectedHub={setSelectedHub} tasks={tasks} openTask={openTask} openVehicle={openVehicle} />;
 }
